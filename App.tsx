@@ -1,8 +1,8 @@
-
 import React from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import About from './components/About';
+import PoolRestorationExperts from './components/PoolRestorationExperts';
 import Services from './components/Services';
 import Gallery from './components/Gallery';
 import Testimonials from './components/Testimonials';
@@ -17,6 +17,7 @@ const App: React.FC = () => {
       <main>
         <Hero />
         <About />
+        <PoolRestorationExperts />
         <Services />
         <Gallery />
         <Testimonials />
