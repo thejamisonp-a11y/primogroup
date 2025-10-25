@@ -1,11 +1,66 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from './Button';
 
 const Hero: React.FC = () => {
+  const images = [
+    'https://picsum.photos/3840/2160?random=1&t=' + Date.now(),
+    'https://picsum.photos/3840/2160?random=2&t=' + Date.now(),
+    'https://picsum.photos/3840/2160?random=3&t=' + Date.now(),
+    'https://picsum.photos/3840/2160?random=4&t=' + Date.now(),
+  ];
+
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [nextImageIndex, setNextImageIndex] = useState(1);
+  const [fade, setFade] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFade(prev => {
+        if (prev < 1) {
+          return prev + 0.02;
+        } else {
+          setCurrentImageIndex(prev => (prev + 1) % images.length);
+          setNextImageIndex(prev => (prev + 1) % images.length);
+          return 0;
+        }
+      });
+    }, 70);
+
+    return () => clearInterval(interval);
+  }, [images.length]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFade(0);
+      setCurrentImageIndex(prev => (prev + 1) % images.length);
+      setNextImageIndex(prev => (prev + 1) % images.length);
+    }, 7000);
+
+    if (fade > 0) return () => clearTimeout(timer);
+    return () => clearTimeout(timer);
+  }, [fade, images.length]);
+
   return (
-    <section id="home" className="relative min-h-screen flex items-center justify-center text-center text-white pt-20">
-      <div className="absolute top-0 left-0 w-full h-full bg-cover bg-center" style={{ backgroundImage: "url('https://picsum.photos/seed/luxury-pool/1920/1080')" }}></div>
+    <section id="home" className="relative min-h-screen flex items-center justify-center text-center text-white pt-20 overflow-hidden">
+      <div className="absolute top-0 left-0 w-full h-full">
+        <div
+          className="absolute top-0 left-0 w-full h-full bg-cover bg-center transition-opacity duration-1000"
+          style={{
+            backgroundImage: `url('${images[currentImageIndex]}')`,
+            opacity: 1 - fade
+          }}
+        ></div>
+        <div
+          className="absolute top-0 left-0 w-full h-full bg-cover bg-center"
+          style={{
+            backgroundImage: `url('${images[nextImageIndex]}')`,
+            opacity: fade
+          }}
+        ></div>
+      </div>
+
       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-primo-blue/80 via-primo-blue/60 to-primo-blue/80"></div>
+      <div className="absolute top-0 left-0 w-full h-full bg-black/40"></div>
 
       <div className="relative z-10 px-4 max-w-5xl mx-auto">
         <div className="mb-6 inline-block">
