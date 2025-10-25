@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { NAV_LINKS, LOGO_URL } from '../constants';
 
@@ -15,13 +14,21 @@ const Header: React.FC = () => {
   }, []);
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md' : 'bg-transparent'}`}>
+    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md' : 'bg-transparent'}`}> 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          <a href="#home" className="block">
-            <img src={LOGO_URL} alt="Primo Pools Logo" className="h-12 w-auto" />
+          <a href="#home" className="block" aria-label="Go to homepage">
+            <img
+              src={LOGO_URL}
+              alt="Primo Pools logo"
+              className="h-12 w-auto"
+              width={160}
+              height={48}
+              loading="eager"
+              decoding="async"
+            />
           </a>
-          
+
           <nav className="hidden md:flex space-x-8">
             {NAV_LINKS.map((link) => (
               <a
@@ -38,6 +45,8 @@ const Header: React.FC = () => {
             <button
               onClick={() => setIsOpen(!isOpen)}
               className={`focus:outline-none ${isScrolled ? 'text-primo-blue' : 'text-white'}`}
+              aria-expanded={isOpen}
+              aria-label="Toggle menu"
             >
               <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 {isOpen ? (
@@ -50,9 +59,9 @@ const Header: React.FC = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Mobile Menu */}
-      <div className={`md:hidden ${isOpen ? 'block' : 'hidden'} ${isScrolled ? 'bg-white' : 'bg-primo-blue/95 backdrop-blur-sm'}`}>
+      <div className={`md:hidden ${isOpen ? 'block' : 'hidden'} ${isScrolled ? 'bg-white' : 'bg-primo-blue/95 backdrop-blur-sm'}`}> 
         <nav className="flex flex-col items-center py-4 space-y-4">
           {NAV_LINKS.map((link) => (
             <a
