@@ -27,22 +27,13 @@ const Hero: React.FC = () => {
 
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center text-center text-white pt-20 overflow-hidden">
-      <div className="absolute top-0 left-0 w-full h-full">
-        <div
-          className="absolute top-0 left-0 w-full h-full bg-cover bg-center transition-opacity duration-1000"
-          style={{
-            backgroundImage: `url('${images[currentImageIndex]}')`,
-            opacity: 1 - fade
-          }}
-        ></div>
-        <div
-          className="absolute top-0 left-0 w-full h-full bg-cover bg-center"
-          style={{
-            backgroundImage: `url('${images[nextImageIndex]}')`,
-            opacity: fade
-          }}
-        ></div>
-      </div>
+      <div
+        className="absolute top-0 left-0 w-full h-full bg-cover bg-center transition-opacity duration-1000"
+        style={{
+          backgroundImage: `url('${images[currentImageIndex]}')`,
+          opacity: fade ? 0 : 1
+        }}
+      ></div>
 
       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-primo-blue/80 via-primo-blue/60 to-primo-blue/80"></div>
       <div className="absolute top-0 left-0 w-full h-full bg-black/40"></div>
