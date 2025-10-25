@@ -1,6 +1,4 @@
-
 import React, { useState, useRef, useEffect } from 'react';
-import { GoogleGenAI, Chat } from '@google/genai';
 import type { ChatMessage } from '../types';
 
 const ChatIcon = () => (
@@ -21,12 +19,16 @@ const SendIcon = () => (
     </svg>
 );
 
+interface ChatSession {
+    sendMessage: (message: string) => Promise<string>;
+}
+
 const AiChatWidget: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const chatRef = useRef<Chat | null>(null);
+    const chatRef = useRef<ChatSession | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -39,21 +41,36 @@ const AiChatWidget: React.FC = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages, isLoading]);
 
-    const initializeChat = () => {
-        if (process.env.API_KEY && !chatRef.current) {
+    const initializeChat = async () => {
+        if (!chatRef.current) {
             try {
-                const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-                chatRef.current = ai.chats.create({
-                    model: 'gemini-2.5-flash',
-                    config: {
-                        systemInstruction: "You are a friendly and knowledgeable assistant for Primo Pools, a luxury pool design and renovation company. Your goal is to answer questions about our services (design, refurbishment, resurfacing, renovation, maintenance) and encourage users to request a free quote by providing their name, email, and phone number. Be helpful, professional, and concise. Start the conversation by introducing yourself and asking how you can help.",
-                    },
+                const GoogleGenerativeAI = (window as any).GoogleGenerativeAI;
+                if (!GoogleGenerativeAI) {
+                    throw new Error('Google Generative AI library not loaded');
+                }
+
+                const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
+                if (!apiKey) {
+                    throw new Error('API key not configured');
+                }
+
+                const genAI = new GoogleGenerativeAI(apiKey);
+                const model = genAI.getGenerativeModel({
+                    model: 'gemini-1.5-flash',
+                    systemInstruction: "You are a friendly and knowledgeable assistant for Primo Pools, a luxury pool design and renovation company. Your goal is to answer questions about our services (design, refurbishment, resurfacing, renovation, maintenance) and encourage users to request a free quote by providing their name, email, and phone number. Be helpful, professional, and concise. Start the conversation by introducing yourself and asking how you can help."
                 });
-                // Add initial message from AI
-                 setMessages([{ role: 'model', text: 'Hello! I am the Primo Pools assistant. How can I help you with your dream pool today?' }]);
+
+                chatRef.current = {
+                    sendMessage: async (userMessage: string) => {
+                        const result = await model.generateContent(userMessage);
+                        return result.response.text();
+                    }
+                };
+
+                setMessages([{ role: 'model', text: 'Hello! I am the Primo Pools assistant. How can I help you with your dream pool today?' }]);
             } catch (error) {
                 console.error("Failed to initialize AI chat:", error);
-                 setMessages([{ role: 'model', text: 'Sorry, the chat service is currently unavailable.' }]);
+                setMessages([{ role: 'model', text: 'Sorry, the chat service is currently unavailable.' }]);
             }
         }
     };
@@ -68,18 +85,8 @@ const AiChatWidget: React.FC = () => {
         setIsLoading(true);
 
         try {
-            const stream = await chatRef.current.sendMessageStream({ message: input });
-            let modelResponse = '';
-            setMessages(prev => [...prev, { role: 'model', text: '' }]);
-
-            for await (const chunk of stream) {
-                modelResponse += chunk.text;
-                setMessages(prev => {
-                    const newMessages = [...prev];
-                    newMessages[newMessages.length - 1].text = modelResponse;
-                    return newMessages;
-                });
-            }
+            const modelResponse = await chatRef.current.sendMessage(input);
+            setMessages(prev => [...prev, { role: 'model', text: modelResponse }]);
         } catch (error) {
             console.error('Error sending message:', error);
             setMessages(prev => [...prev, { role: 'model', text: 'Sorry, I encountered an error. Please try again.' }]);
