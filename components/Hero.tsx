@@ -3,42 +3,27 @@ import Button from './Button';
 
 const Hero: React.FC = () => {
   const images = [
-    'https://picsum.photos/3840/2160?random=1&t=' + Date.now(),
-    'https://picsum.photos/3840/2160?random=2&t=' + Date.now(),
-    'https://picsum.photos/3840/2160?random=3&t=' + Date.now(),
-    'https://picsum.photos/3840/2160?random=4&t=' + Date.now(),
+    'https://images.unsplash.com/photo-1576610616656-d3aa5d1f4534?w=3840&h=2160&fit=crop',
+    'https://images.unsplash.com/photo-1598696114155-b0b4c0e70b7b?w=3840&h=2160&fit=crop',
+    'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d3b?w=3840&h=2160&fit=crop',
+    'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=3840&h=2160&fit=crop',
   ];
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [nextImageIndex, setNextImageIndex] = useState(1);
-  const [fade, setFade] = useState(0);
+  const [fade, setFade] = useState(false);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setFade(prev => {
-        if (prev < 1) {
-          return prev + 0.02;
-        } else {
-          setCurrentImageIndex(prev => (prev + 1) % images.length);
-          setNextImageIndex(prev => (prev + 1) % images.length);
-          return 0;
-        }
-      });
-    }, 70);
+    const timer = setInterval(() => {
+      setFade(true);
 
-    return () => clearInterval(interval);
+      setTimeout(() => {
+        setCurrentImageIndex(prev => (prev + 1) % images.length);
+        setFade(false);
+      }, 1000);
+    }, 8000);
+
+    return () => clearInterval(timer);
   }, [images.length]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setFade(0);
-      setCurrentImageIndex(prev => (prev + 1) % images.length);
-      setNextImageIndex(prev => (prev + 1) % images.length);
-    }, 7000);
-
-    if (fade > 0) return () => clearTimeout(timer);
-    return () => clearTimeout(timer);
-  }, [fade, images.length]);
 
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center text-center text-white pt-20 overflow-hidden">
